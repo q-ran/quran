@@ -40,6 +40,9 @@ keyOther = {
 }
 
 valTrans = {
+    'n': {
+        'EMPH': 'emphatic',
+    },
     'f': {
         'CONJ+': ('conjunction', 'coordinating'),
         'CAUS+': ('particle', 'cause'),

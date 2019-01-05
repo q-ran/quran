@@ -1,6 +1,8 @@
 ![quran](docs/images/quran.png)
 [![tf](docs/images/tf-small.png)](https://github.com/annotation/text-fabric)
 
+[![DOI](https://zenodo.org/badge/164148228.svg)](https://doi.org/10.5281/zenodo.2532177)
+
 # Quran
 
 This repository contains text and annotations of the Quran.
@@ -27,6 +29,11 @@ The conversion code and all other materials are licensed as
 
 Read more about provenance and license in
 [About](docs/about.md).
+
+# Documentation
+
+The features are documented in
+[features](docs/features.md).
 
 # Authors
 
