@@ -79,15 +79,15 @@ name | example values | description
 --- | --- | ---
 **pos** | `noun` `particle` `conjunction` | part of speech, main classification
 **posx** | `proper` `negative` `coordinating` | part of speech, refined classification
-**a |** *None* `particle` | ??
+**a** | *None* `particle` | ??
 **ax** | *None* `equalization` `interrogative` | ??
-**f |** *None* `particle` `conjunction` | ??
+**f** | *None* `particle` `conjunction` | ??
 **fx** | *None* `resumption` `coordinating` | ??
-**l |** *None* `preposition` `prefix` | ??
+**l** | *None* `preposition` `prefix` | ??
 **lx** | *None* `emphatic` `purpose` `imperative` | ??
-**w |** *None* `particle` `conjunction` | ??
+**w** | *None* `particle` `conjunction` | ??
 **wx** | *None* `resumption` `coordinating` | ??
-**n |** *None* `emphatic` | ??
+**n** | *None* `emphatic` | ??
 
 ### features with nominal morphology
 
