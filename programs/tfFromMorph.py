@@ -546,7 +546,8 @@ def makeTfData():
 ''')
 
   (curS, curA, curG, curW) = (None, None, None, None)
-  (nodeS, nodeA, nodeG, nodeW) = (0, 0, 0, 0)
+  (nodeS, nodeA, nodeG, nodeW, nodeL) = (0, 0, 0, 0, 0)
+  seenL = {}
 
   for (thisS, thisA, thisG, thisW) in sorted(wordFeatures):
     nodeW += 1
@@ -562,6 +563,14 @@ def makeTfData():
     nodeFeatures.setdefault('number', {})[nodeW] = thisW
     for (k, v) in wordFeatures.get((thisS, thisA, thisG, thisW), {}).items():
       nodeFeatures.setdefault(k, {})[nodeW] = v
+      if k == 'lemma' and v is not None:
+        if v not in seenL:
+          nodeL += 1
+          seenL[v] = nodeL
+          otype[offsetW + offsetG + offsetA + offsetS + nodeL] = 'lex'
+          nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + offsetS + nodeL] = v
+        lex = seenL[v]
+        oslots.setdefault(offsetW + offsetG + offsetA + offsetS + lex, set()).add(nodeW)
 
     if (thisS, thisA, thisG) != (curS, curA, curG):
       nodeG += 1
@@ -578,9 +587,9 @@ def makeTfData():
     if thisS != curS:
       nodeS += 1
       otype[offsetW + offsetG + offsetA + nodeS] = 'sura'
-      nodeFeatures.setdefault('number', {})[offsetW + offsetG + offsetA + nodeW] = thisS
+      nodeFeatures.setdefault('number', {})[offsetW + offsetG + offsetA + nodeS] = thisS
       for (k, v) in suraFeatures.get(thisS, {}).items():
-        nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + nodeW] = v
+        nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + nodeS] = v
     oslots.setdefault(offsetW + offsetG + offsetA + nodeS, set()).add(nodeW)
 
     (curS, curA, curG, curW) = (thisS, thisA, thisG, thisW)
@@ -605,6 +614,7 @@ def makeTfData():
   {nodeA:>6} aya nodes
   {nodeG:>6} word group nodes
   {nodeW:>6} word nodes
+  {nodeL:>6} lexeme nodes
 ''')
 
   fvs = (
@@ -612,6 +622,7 @@ def makeTfData():
       +
       sum(len(edgeFeatures[f]) for f in edgeFeatures)
   )
+  print(f'Nodes: {nodeW + nodeG + nodeA + nodeS + nodeL}')
   print(f'Feature values: {fvs}')
 
 
@@ -628,6 +639,7 @@ def loadTf():
   loadableFeatures = allFeatures['nodes'] + allFeatures['edges']
   api = TF.load(loadableFeatures)
   if api:
+    print(f'max node = {api.F.otype.maxNode}')
     print(api.F.root.freqList()[0:20])
 
 

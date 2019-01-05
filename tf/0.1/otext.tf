@@ -15,5 +15,5 @@
 @source2=Text: Tanzil Quran Text (Uthmani, version 1.0.2)
 @source2Url=http://tanzil.net/docs/home
 @writtenBy=Text-Fabric
-@dateWritten=2019-01-05T10:51:47Z
+@dateWritten=2019-01-05T13:12:38Z
 

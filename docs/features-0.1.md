@@ -10,7 +10,6 @@ otype | description
 **group** | word group. These are the pieces that are separated by spaces
 **aya** | a line of text. This is also section level 2
 **sura** | a book. This is section level 1
-**lex** | lexeme. These are nodes that are linked to all words with the same lexeme
 
 ## oslots
 
@@ -42,13 +41,13 @@ name | example values | description
 **unicode** | `بِ` `سْمِ` `نَّاسِ` | arabic text of word (uthmani)
 **space** | ` ` *empty*  | a single space if the word is followed by a space, else empty
 
-## Word/lemma features: lemmatization
+## Word features: lemmatization
 
-name | node types | example values | description
+name | example values | description
 --- | --- | ---
-**lemma** | word lex | *None* `{som` `n~aAs` | lemma of word; not all words have a lemma
-**root** | word | *None* `smw` `nws` | root of word; not all words have a root
-**sp** | word | *None* `<in~` `kaAn` | ??
+**lemma** | *None* `{som` `n~aAs` | lemma of word; not all words have a lemma
+**root** | *None* `smw` `nws` | root of word; not all words have a root
+**sp** | *None* `<in~` `kaAn` | ??
 
 ## Word features: morphology
 

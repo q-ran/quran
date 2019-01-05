@@ -12,9 +12,10 @@
 @source2Url=http://tanzil.net/docs/home
 @valueType=str
 @writtenBy=Text-Fabric
-@dateWritten=2019-01-05T10:51:46Z
+@dateWritten=2019-01-05T13:12:37Z
 
 1-128219	word
 128220-205648	group
 205649-211884	aya
 211885-211998	sura
+211999-216830	lex
