@@ -31,8 +31,7 @@ Read more about provenance and license in
 # Authors
 
 [Cornelis van Lit](http://uu.academia.edu/LWCornelisEricvanLit)
+[![uu](docs/images/uu-small.png)](https://www.uu.nl/en/research/religious-studies/islam-and-arabic)
 
 [Dirk Roorda](http://knaw.academia.edu/DirkRoorda)
-
-[![uu](docs/images/uu-small.png)](https://www.uu.nl/en/research/religious-studies/islam-and-arabic)
 [![dans](docs/images/dans-small.png)](https://dans.knaw.nl/en/about/research-and-innovation/research-and-innovation)
