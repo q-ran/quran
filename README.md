@@ -1,5 +1,5 @@
 ![quran](docs/images/quran.png)
-[![tf](docs/images/tf.png)](https://github.com/annotation/text-fabric)
+[![tf](docs/images/tf-small.png)](https://github.com/annotation/text-fabric)
 
 # Quran
 
@@ -13,7 +13,7 @@ This makes it easier to do all kinds of research on the text.
 **This is work in progress: we need to do more testing and documenting**
 
 We have taken the source materials from
-[Quranic Arabic Corpus 0.4 (2011) by Kais Dukes](http://corpus.quran.com).
+[Quranic Arabic Corpus 0.4 (2011) by Kais Dukes](http://corpus.quran.com)
 and
 [Tanzil](http://tanzil.net/docs/tanzil_project).
 
@@ -27,3 +27,12 @@ The conversion code and all other materials are licensed as
 
 Read more about provenance and license in
 [About](docs/about.md).
+
+# Authors
+
+[Cornelis van Lit](http://uu.academia.edu/LWCornelisEricvanLit)
+
+[Dirk Roorda](http://knaw.academia.edu/DirkRoorda)
+
+[![uu](docs/images/uu.png)](https://www.uu.nl/en/research/religious-studies/islam-and-arabic)
+[![dans](docs/images/dans-small.png)](https://dans.knaw.nl/en/about/research-and-innovation/research-and-innovation)
