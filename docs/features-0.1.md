@@ -7,9 +7,16 @@ There are the following node types
 otype | description
 --- | ---
 **word** | logical word. It may be a prefix or suffix attached to a main word
+**lex** | lexeme. These are nodes that are linked to all words with the same lexeme
 **group** | word group. These are the pieces that are separated by spaces
 **aya** | a line of text. This is also section level 2
 **sura** | a book. This is section level 1
+**juz** | a type of section
+**hizb** | a type of section
+**manzil** | a type of section
+**ruku** | a type of section
+**page** | a type of section
+**sajda** | a type of section
 
 ## oslots
 
@@ -20,18 +27,20 @@ You do not need this feature directly.
 
 name | node type | example values | description
 --- | --- | --- | ---
-**number** | sura aya group word | `1` `2` `3` | the number of the sura, or the aya within the sura, or the wordgroup within the aya or the word within the word group
+**number** | all types except *lex*  | `1` `2` `3` | the number of the section or word group or word
 
-## Sura features
+## Section features
 
-name | example values | description
+name | node type | example values | description
 --- | --- | ---
-**name** | `الفاتحة` `البقرة` `الناس` | name of sura in Arabic
-**nameTrans** | `Al-Faatiha` `Al-Baqara` `An-Naas` | name of sura in transcribed Arabic
-**nameAscii** | `AlfAtHp` `Albqrp` `AlnAs` | name of sura in transliterated Arabic
-**name@en** | `The Opening` `The Cow` `Mankind` | name of sura in English
-**type** | `Meccan` `Medinan` | type of sura
-**order** | `5` `87` `21` | ordinal number of sura
+**name** | sura | `الفاتحة` `البقرة` `الناس` | name of sura in Arabic
+**nameTrans** | sura | `Al-Faatiha` `Al-Baqara` `An-Naas` | name of sura in transcribed Arabic
+**nameAscii** | sura | `AlfAtHp` `Albqrp` `AlnAs` | name of sura in transliterated Arabic
+**name@en** | sura | `The Opening` `The Cow` `Mankind` | name of sura in English
+**type** | sura  sajda | `Meccan` `Medinan` (suras); `recommended` `obligatory` (sajdas) | type of sura
+**order** | sura | `5` `87` `21` | ordinal number of sura
+**translation@en** | aya | `I serve not what you serve` | english translation of whole aya
+**translation@nl** | aya | `Ik zal niet dienen wat jullie dienen.` | dutch translation of whole aya
 
 ## Word features: text
 
@@ -41,13 +50,13 @@ name | example values | description
 **unicode** | `بِ` `سْمِ` `نَّاسِ` | arabic text of word (uthmani)
 **space** | ` ` *empty*  | a single space if the word is followed by a space, else empty
 
-## Word features: lemmatization
+## Word/lemma features: lemmatization
 
-name | example values | description
+name | node types | example values | description
 --- | --- | ---
-**lemma** | *None* `{som` `n~aAs` | lemma of word; not all words have a lemma
-**root** | *None* `smw` `nws` | root of word; not all words have a root
-**sp** | *None* `<in~` `kaAn` | ??
+**lemma** | word lex | *None* `{som` `n~aAs` | lemma of word; not all words have a lemma
+**root** | word | *None* `smw` `nws` | root of word; not all words have a root
+**sp** | word | *None* `<in~` `kaAn` | ??
 
 ## Word features: morphology
 

@@ -19,6 +19,16 @@ The source materials are obtained from these files:
    [tanzil](http://tanzil.net/download/)
    under license: **CC-BY-ND**
 
+4. file `en.arberry.xml`,
+   obtained from
+   [tanzil](http://tanzil.net/download/)
+   under license: **CC-BY-ND**
+
+5. file `nl.leemhuis.xml`,
+   obtained from
+   [tanzil](http://tanzil.net/download/)
+   under license: **CC-BY-ND**
+
 Out of these sources we created a corpus in
 [Text-Fabric](https://github.com/annotation/text-fabric)
 format.
@@ -30,10 +40,15 @@ as prescribed by the
 
 We used 1. to obtain the full text in transliteration plus the morphological annotations.
 
-We used 2. to obtain metadata about the individual suras.
+We used 2. to obtain metadata about the individual suras and other sectional units, such as juz
+and ruku.
 
 We used 3. to derive the transliteration mapping. It turned out there is a 1-1
 correspondence between the plain arabic text in 3. and the transliterated text in 1.
+
+We used 4. to add an English translation to each aya.
+
+We used 5. to add a Dutch translation to each aya.
 
 # License
 
@@ -126,4 +141,37 @@ Here is a more precise statement of the licenses as contained in the sources:
 #    derived from or containing substantial portion of this text.
 #
 #  Please check updates at: http://tanzil.net/updates/
+```
+
+## 4.
+
+```
+#=====================================================================
+#
+#  Quran Translation
+#  Name: Arberry
+#  Translator: A. J. Arberry
+#  Language: English
+#  ID: en.arberry
+#  Last Update: July 31, 2011
+#  Source: Tanzil.net
+#
+#=====================================================================
+
+```
+
+## 5.
+
+```
+#=====================================================================
+#
+#  Quran Translation
+#  Name: Leemhuis
+#  Translator: Fred Leemhuis
+#  Language: Dutch
+#  ID: nl.leemhuis
+#  Last Update: August 5, 2012
+#  Source: Tanzil.net
+#
+#=====================================================================
 ```

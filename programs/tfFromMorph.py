@@ -17,7 +17,12 @@ MORPH_PATH = f'{SOURCES}/{MORPH_FILE}'
 DATA_FILE = 'quran-data.xml'
 DATA_PATH = f'{SOURCES}/{DATA_FILE}'
 TF_PATH = f'{BASE}/tf'
-VERSION = '0.1'
+VERSION = '0.2'
+
+TRANSLATIONS = dict(
+    en=f'{SOURCES}/en.arberry.xml',
+    nl=f'{SOURCES}/nl.leemhuis.xml',
+)
 
 # config
 
@@ -211,6 +216,8 @@ metaData = {
         'sectionTypes': 'sura,aya',
         'fmt:text-orig-full': f'{{unicode}}{{space}}',
         'fmt:text-trans-full': f'{{ascii}}{{space}}',
+        'fmt:lex-trans-full': f'{{lemma}}{{space}}',
+        'fmt:root-trans-full': f'{{root}}{{space}}',
     },
     'otype': {
         'valueType': 'str',
@@ -366,6 +373,16 @@ metaData = {
         'valueType': 'str',
         'description': 'not yet understood',
     },
+    'translation@en': {
+        'valueType': 'str',
+        'description': 'english translation of whole aya',
+        'translator': 'Arthur Arberry (1955), https://en.wikipedia.org/wiki/Arthur_John_Arberry',
+    },
+    'translation@nl': {
+        'valueType': 'str',
+        'description': 'english translation of whole aya',
+        'translator': 'Fred Leemhuis (1989), https://rug.academia.edu/FrederikLeemhuis',
+    },
 }
 
 # data holders
@@ -373,12 +390,48 @@ metaData = {
 morphDb = {}
 wordFeatures = {}
 suraFeatures = {}
+sectionFeatures = {}
+
+translations = {}
+
 unknowns = set()
 unknownFeatures = set()
 unknownPerFeat = {}
 
+posIndex = {}
+
 nodeFeatures = {}
 edgeFeatures = {}
+
+attPat = r' ([a-z]+)="([^"]*)"'
+attRe = re.compile(attPat)
+
+
+def readTranslations():
+  suraPat = r'<sura(.*?)>(.*?)</sura>'
+  suraRe = re.compile(suraPat, re.S)
+  ayaPat = r'<aya(.*?)/>'
+  ayaRe = re.compile(ayaPat)
+  for (lang, source) in sorted(TRANSLATIONS.items()):
+    print(f'Read @{lang} translation from {os.path.basename(source)}')
+    with open(source) as fh:
+      data = fh.read()
+    suras = suraRe.findall(data)
+    for (suraAttStr, content) in suras:
+      suraAtts = dict(attRe.findall(suraAttStr))
+      sI = int(suraAtts.get('index', 0))
+      ayas = ayaRe.findall(content)
+      for aya in ayas:
+        ayaAtts = dict(attRe.findall(aya))
+        aI = int(ayaAtts.get('index', 0))
+        text = (
+            ayaAtts.get('text', '')
+            .replace('&quot;', '"')
+            .replace('&apos;', "'")
+            .replace('&lt;', '<')
+            .replace('&gt;', '>')
+        )
+        translations.setdefault(lang, {})[(sI, aI)] = text
 
 
 def readData():
@@ -386,8 +439,18 @@ def readData():
 
   suraPat = r'<sura(.*?)/>'
   suraRe = re.compile(suraPat)
-  attPat = r' ([a-z]+)="([^"]*)"'
-  attRe = re.compile(attPat)
+  juzPat = r'<juz(.*?)/>'
+  juzRe = re.compile(juzPat)
+  hizbPat = r'<quarter(.*?)/>'
+  hizbRe = re.compile(hizbPat)
+  manzilPat = r'<manzil(.*?)/>'
+  manzilRe = re.compile(manzilPat)
+  rukuPat = r'<ruku(.*?)/>'
+  rukuRe = re.compile(rukuPat)
+  pagePat = r'<page(.*?)/>'
+  pageRe = re.compile(pagePat)
+  sajdaPat = r'<sajda(.*?)/>'
+  sajdaRe = re.compile(sajdaPat)
 
   with open(DATA_PATH) as fh:
     data = fh.read()
@@ -406,6 +469,25 @@ def readData():
     if 'order' in atts:
       suraFeatures[sI]['order'] = int(atts['order'])
   print(f'Read features for {len(suras)} suras')
+
+  for (sectionName, sectionRe, info) in (
+      ('juz', juzRe, ()),
+      ('hizb', hizbRe, ()),
+      ('manzil', manzilRe, ()),
+      ('ruku', rukuRe, ()),
+      ('page', pageRe, ()),
+      ('sajda', sajdaRe, ('type',)),
+  ):
+    dest = sectionFeatures.setdefault(sectionName, {})
+    sections = sectionRe.findall(data)
+    for section in sections:
+      atts = dict(attRe.findall(section))
+      sI = int(atts.get('index', 0))
+      sura = int(atts.get('sura', 0))
+      aya = int(atts.get('aya', 0))
+      dest[sI] = {'start': (sura, aya)}
+      for k in info:
+        dest[sI][k] = atts[k]
 
 
 def readMorph():
@@ -526,7 +608,7 @@ def makeTfData():
   oslots = {}
 
   (offsetS, offsetA, offsetG, offsetW) = (0, 0, 0, 0)
-  (curS, curA, curG, curW) = (None, None, None, None)
+  (curS, curA, curG) = (None, None, None)
 
   for (thisS, thisA, thisG, thisW) in sorted(wordFeatures):
     offsetW += 1
@@ -536,7 +618,7 @@ def makeTfData():
       offsetA += 1
     if thisS != curS:
       offsetS += 1
-    (curS, curA, curG, curW) = (thisS, thisA, thisG, thisW)
+    (curS, curA, curG) = (thisS, thisA, thisG)
 
   print(f'''
   {offsetS:>6} suras
@@ -545,20 +627,21 @@ def makeTfData():
   {offsetW:>6} words
 ''')
 
-  (curS, curA, curG, curW) = (None, None, None, None)
-  (nodeS, nodeA, nodeG, nodeW, nodeL) = (0, 0, 0, 0, 0)
+  (curS, curA, curG) = (None, None, None)
+  (nodeS, nodeA, nodeG, nodeW, nodeL, nodeP) = (0, 0, 0, 0, 0, 0)
   seenL = {}
 
   for (thisS, thisA, thisG, thisW) in sorted(wordFeatures):
-    nodeW += 1
-    otype[nodeW] = 'word'
-    if curW is not None:
+    if nodeW:
       space = (
           ' '
           if thisS == curS and thisA == curA and thisG != curG
           else ''
       )
-      nodeFeatures.setdefault('space', {})[curW] = space
+      nodeFeatures.setdefault('space', {})[nodeW] = space
+
+    nodeW += 1
+    otype[nodeW] = 'word'
 
     nodeFeatures.setdefault('number', {})[nodeW] = thisW
     for (k, v) in wordFeatures.get((thisS, thisA, thisG, thisW), {}).items():
@@ -579,9 +662,14 @@ def makeTfData():
     oslots.setdefault(offsetW + nodeG, set()).add(nodeW)
 
     if (thisS, thisA) != (curS, curA):
+      posIndex[(thisS, thisA)] = nodeW
       nodeA += 1
       otype[offsetW + offsetG + nodeA] = 'aya'
       nodeFeatures.setdefault('number', {})[offsetW + offsetG + nodeA] = thisA
+      for lang in translations:
+        nodeFeatures.setdefault(f'translation@{lang}', {})[offsetW + offsetG + nodeA] = (
+            translations[lang][(thisS, thisA)]
+        )
     oslots.setdefault(offsetW + offsetG + nodeA, set()).add(nodeW)
 
     if thisS != curS:
@@ -592,7 +680,27 @@ def makeTfData():
         nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + nodeS] = v
     oslots.setdefault(offsetW + offsetG + offsetA + nodeS, set()).add(nodeW)
 
-    (curS, curA, curG, curW) = (thisS, thisA, thisG, thisW)
+    (curS, curA, curG) = (thisS, thisA, thisG)
+
+  offsetP = nodeW + nodeG + nodeA + nodeS + nodeL
+
+  for (sectionName, sectionData) in sectionFeatures.items():
+    for (sI, data) in sorted(sectionData.items()):
+      nodeP += 1
+      otype[offsetP + nodeP] = sectionName
+      nodeFeatures.setdefault('number', {})[offsetP + nodeP] = sI
+      (sura, aya) = data['start']
+      startW = posIndex[(sura, aya)]
+      endW = (
+          posIndex[sectionData[sI + 1]['start']] - 1
+          if sI + 1 in sectionData else
+          nodeW
+      )
+      oslots[offsetP + nodeP] = set(range(startW, endW + 1))
+      for k in data:
+        if k == 'start':
+          continue
+        nodeFeatures.setdefault(k, {})[offsetP + nodeP] = data[k]
 
   nodeFeatures['otype'] = otype
   edgeFeatures['oslots'] = oslots
@@ -615,14 +723,17 @@ def makeTfData():
   {nodeG:>6} word group nodes
   {nodeW:>6} word nodes
   {nodeL:>6} lexeme nodes
+  {nodeP:>6} section nodes
 ''')
+  for (sectionName, sectionData) in sectionFeatures.items():
+    print(f'  {len(sectionData):>6} {sectionName} nodes')
 
   fvs = (
       sum(len(nodeFeatures[f]) for f in nodeFeatures)
       +
       sum(len(edgeFeatures[f]) for f in edgeFeatures)
   )
-  print(f'Nodes: {nodeW + nodeG + nodeA + nodeS + nodeL}')
+  print(f'Nodes: {nodeW + nodeG + nodeA + nodeS + nodeL + nodeP}')
   print(f'Feature values: {fvs}')
 
 
@@ -644,6 +755,7 @@ def loadTf():
 
 
 def main():
+  readTranslations()
   readData()
   readMorph()
   parseMorph()

@@ -12,7 +12,10 @@ The corpus is modeled as a
 which is optimized for processing the text as data.
 This makes it easier to do all kinds of research on the text.
 
+2019-01-07: the Quran TF-app and data and tutorials released.
+
 **This is work in progress: we need to do more testing and documenting**
+
 
 We have taken the source materials from
 [Quranic Arabic Corpus 0.4 (2011) by Kais Dukes](http://corpus.quran.com)
@@ -34,6 +37,8 @@ Read more about provenance and license in
 
 The features are documented in
 [features](docs/features.md).
+
+English and Dutch translations of the Quran are included in the feature data.
 
 # Authors
 
