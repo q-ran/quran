@@ -4,7 +4,6 @@ from shutil import rmtree
 
 from tf.fabric import Fabric
 from tf.writing.transcription import Transcription as tr
-from tf.convert.tokens import Token
 
 # locations
 
@@ -18,8 +17,7 @@ MORPH_PATH = f'{SOURCES}/{MORPH_FILE}'
 DATA_FILE = 'quran-data.xml'
 DATA_PATH = f'{SOURCES}/{DATA_FILE}'
 TF_PATH = f'{BASE}/tf'
-VERSION = '0.3'
-TF_PATH_V = f'{TF_PATH}/{VERSION}'
+VERSION = '0.2'
 
 TRANSLATIONS = dict(
     en=f'{SOURCES}/en.arberry.xml',
@@ -199,154 +197,189 @@ valIndex = {
     'ya+': (),
 }
 
-generic = dict(
-    acronym='quran',
-    createdBy='Kais Dukes',
-    createdDate='2011',
-    convertedBy='Dirk Roorda and Cornelis van Lit',
-    source1='Morphology: Quranic Arabic Corpus 0.4 (2011) by Kais Dukes',
-    source1Url='http://corpus.quran.com',
-    license1='Open Source, unspecified, see http://corpus.quran.com/releasenotes.jsp',
-    source2='Text: Tanzil Quran Text (Uthmani, version 1.0.2)',
-    source2Url='http://tanzil.net/docs/home',
-    license2='Creative Commons BY-ND 3.0 Unported',
-    description='Quran: plain text plus morphological annotations at the word level',
-)
-
-otext = {
-    'sectionFeatures': 'number,number',
-    'sectionTypes': 'sura,aya',
-    'fmt:text-orig-full': f'{{unicode}}{{space}}',
-    'fmt:text-trans-full': f'{{ascii}}{{space}}',
-    'fmt:lex-trans-full': f'{{lemma}}{{space}}',
-    'fmt:root-trans-full': f'{{root}}{{space}}',
-}
-
-intFeatures = set('''
-    number
-    order
-    definite
-'''.strip().split())
-
-featureMeta = {
+metaData = {
+    '': dict(
+        acronym='quran',
+        createdBy='Kais Dukes',
+        createdDate='2011',
+        convertedBy='Dirk Roorda and Cornelis van Lit',
+        source1='Morphology: Quranic Arabic Corpus 0.4 (2011) by Kais Dukes',
+        source1Url='http://corpus.quran.com',
+        license1='Open Source, unspecified, see http://corpus.quran.com/releasenotes.jsp',
+        source2='Text: Tanzil Quran Text (Uthmani, version 1.0.2)',
+        source2Url='http://tanzil.net/docs/home',
+        license2='Creative Commons BY-ND 3.0 Unported',
+        description='Quran: plain text plus morphological annotations at the word level',
+    ),
+    'otext': {
+        'sectionFeatures': 'number,number',
+        'sectionTypes': 'sura,aya',
+        'fmt:text-orig-full': f'{{unicode}}{{space}}',
+        'fmt:text-trans-full': f'{{ascii}}{{space}}',
+        'fmt:lex-trans-full': f'{{lemma}}{{space}}',
+        'fmt:root-trans-full': f'{{root}}{{space}}',
+    },
+    'otype': {
+        'valueType': 'str',
+    },
+    'oslots': {
+        'valueType': 'str',
+    },
     'number': {
+        'valueType': 'int',
         'description': 'Number of sura, aya, word group, or word',
     },
     'name@en': {
+        'valueType': 'str',
         'language': 'english',
         'languageCode': 'en',
         'languageEnglish': 'English',
         'description': 'Name of sura in English',
     },
     'name': {
+        'valueType': 'str',
         'language': 'arabic',
         'description': 'Name of sura in Arabic',
     },
     'nameTrans': {
+        'valueType': 'str',
         'language': 'arabic',
         'description': 'Name of sura in Arabic, transcribed',
     },
     'nameAscii': {
+        'valueType': 'str',
         'language': 'arabic',
         'description': 'Name of sura in Arabic, transliterated',
     },
     'type': {
+        'valueType': 'str',
         'description': 'type of sura',
     },
     'order': {
+        'valueType': 'int',
         'description': 'ordinal number of sura',
     },
     'ascii': {
+        'valueType': 'str',
         'description': 'transliterated text of word',
     },
     'unicode': {
+        'valueType': 'str',
         'description': 'unicode arabic text of word',
     },
     'space': {
+        'valueType': 'str',
         'description': 'material between this word and the next',
     },
     'lemma': {
+        'valueType': 'str',
         'description': 'lemma of word',
     },
     'root': {
+        'valueType': 'str',
         'description': 'root of word',
     },
     'case': {
+        'valueType': 'str',
         'description': 'case of word',
     },
     'pos': {
+        'valueType': 'str',
         'description': 'part-of-speech of word, main class',
         'documentation': 'http://corpus.quran.com/documentation/tagset.jsp',
     },
     'posx': {
+        'valueType': 'str',
         'description': 'part-of-speech of word, refined class',
         'documentation': 'http://corpus.quran.com/documentation/tagset.jsp',
     },
     'formation': {
+        'valueType': 'str',
         'description': 'stem formation of verb',
     },
     'interjection': {
+        'valueType': 'str',
         'description': 'kind of interjection',
     },
     'gn': {
+        'valueType': 'str',
         'description': 'gender of word (masculine, feminine)',
     },
     'nu': {
+        'valueType': 'str',
         'description': 'number of word (singular, dual, plural)',
     },
     'ps': {
+        'valueType': 'str',
         'description': 'person of word (1st, 2nd, 3rd)',
     },
     'voice': {
+        'valueType': 'str',
         'description': 'voice of a verb (active, passive)',
     },
     'tense': {
+        'valueType': 'str',
         'description': 'tense of a verb (perfect, imperfect, ...)',
     },
     'mood': {
+        'valueType': 'str',
         'description': 'mood of a verb (subj, jus, ...)',
     },
     'definite': {
+        'valueType': 'int',
         'description': 'whether the word is definite',
     },
     'component': {
+        'valueType': 'str',
         'description': 'role of the word in its word group (prefix, main, or suffix)',
     },
     'a': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'ax': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'f': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'fx': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'l': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'lx': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'n': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'w': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'wx': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'sp': {
+        'valueType': 'str',
         'description': 'not yet understood',
     },
     'translation@en': {
+        'valueType': 'str',
         'description': 'english translation of whole aya',
         'translator': 'Arthur Arberry (1955), https://en.wikipedia.org/wiki/Arthur_John_Arberry',
     },
     'translation@nl': {
+        'valueType': 'str',
         'description': 'english translation of whole aya',
         'translator': 'Fred Leemhuis (1989), https://rug.academia.edu/FrederikLeemhuis',
     },
@@ -567,16 +600,6 @@ def parseMorph():
     print(f'\tAll feature values known')
   print(f'Done')
 
-
-# SET UP CONVERSION
-
-if os.path.exists(TF_PATH_V):
-  rmtree(TF_PATH_V)
-TF = Fabric(locations=[TF_PATH_V])
-token = Token(TF)
-
-
-# TOKEN GENERATOR
 
 def makeTfData():
   print('Making TF data')

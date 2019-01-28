@@ -33,6 +33,11 @@ The conversion code and all other materials are licensed as
 Read more about provenance and license in
 [About](docs/about.md).
 
+Getting started
+===============
+Start with the
+[tutorial](https://nbviewer.jupyter.org/github/annotation/tutorials/blob/master/quran/start.ipynb).
+
 # Documentation
 
 The features are documented in
