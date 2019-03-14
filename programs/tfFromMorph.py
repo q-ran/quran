@@ -1,32 +1,34 @@
 import os
+import sys
 import re
 from shutil import rmtree
 
 from tf.fabric import Fabric
 from tf.writing.transcription import Transcription as tr
-from tf.convert.tokens import Token
+from tf.convert.walker import CV
 
-# locations
+# LOCATIONS
 
 GH_BASE = os.path.expanduser('~/github')
 ORG = 'q-ran'
 REPO = 'quran'
 BASE = f'{GH_BASE}/{ORG}/{REPO}'
-SOURCES = f'{BASE}/sources'
+VERSION_SRC = '1.0'
+SOURCES = f'{BASE}/sources/{VERSION_SRC}'
 MORPH_FILE = 'quranic-corpus-morphology-0.4.txt'
 MORPH_PATH = f'{SOURCES}/{MORPH_FILE}'
 DATA_FILE = 'quran-data.xml'
 DATA_PATH = f'{SOURCES}/{DATA_FILE}'
 TF_PATH = f'{BASE}/tf'
-VERSION = '0.3'
-TF_PATH_V = f'{TF_PATH}/{VERSION}'
+VERSION_TF = '0.3'
+OUT_DIR = f'{TF_PATH}/{VERSION_TF}'
 
 TRANSLATIONS = dict(
     en=f'{SOURCES}/en.arberry.xml',
     nl=f'{SOURCES}/nl.leemhuis.xml',
 )
 
-# config
+# SOURCE DECODING
 
 keyTrans = {
     'LEM': 'lemma',
@@ -199,6 +201,10 @@ valIndex = {
     'ya+': (),
 }
 
+# TF CONFIGURATION
+
+slotType = 'word'
+
 generic = dict(
     acronym='quran',
     createdBy='Kais Dukes',
@@ -352,23 +358,19 @@ featureMeta = {
     },
 }
 
-# data holders
+# DATA READING
 
 morphDb = {}
 wordFeatures = {}
 suraFeatures = {}
-sectionFeatures = {}
+sectionStart = {}
+sectionEnd = {}
 
 translations = {}
 
 unknowns = set()
 unknownFeatures = set()
 unknownPerFeat = {}
-
-posIndex = {}
-
-nodeFeatures = {}
-edgeFeatures = {}
 
 attPat = r' ([a-z]+)="([^"]*)"'
 attRe = re.compile(attPat)
@@ -445,16 +447,16 @@ def readData():
       ('page', pageRe, ()),
       ('sajda', sajdaRe, ('type',)),
   ):
-    dest = sectionFeatures.setdefault(sectionName, {})
     sections = sectionRe.findall(data)
     for section in sections:
       atts = dict(attRe.findall(section))
       sI = int(atts.get('index', 0))
       sura = int(atts.get('sura', 0))
       aya = int(atts.get('aya', 0))
-      dest[sI] = {'start': (sura, aya)}
-      for k in info:
-        dest[sI][k] = atts[k]
+      features = {k: atts[k] for k in info}
+      if sI > 1:
+        sectionEnd.setdefault((sura, aya), []).append((sectionName, sI - 1))
+      sectionStart.setdefault((sura, aya), []).append((sectionName, sI, features))
 
 
 def readMorph():
@@ -535,21 +537,97 @@ def parseMorphItem(tag, featureStr):
   return (features, unknowns)
 
 
-def parseMorph():
+# SET UP CONVERSION
+
+def getConverter():
+  if os.path.exists(OUT_DIR):
+    rmtree(OUT_DIR)
+  TF = Fabric(locations=[OUT_DIR])
+  return CV(TF)
+
+
+def convert():
+  readTranslations()
+  readData()
+  readMorph()
+  cv = getConverter()
+
+  return cv.walk(
+      director,
+      slotType,
+      otext=otext,
+      generic=generic,
+      intFeatures=intFeatures,
+      featureMeta=featureMeta,
+      generateTf=generateTf,
+  )
+
+
+# DIRECTOR
+
+def director(cv):
   print('Parsing morphological data')
 
   global unknowns
 
+  lemmaIndex = {}
+  sectionIndex = {}
+
   for (sura, suraData) in morphDb.items():
+    curSura = cv.node('sura')
+    cv.feature(curSura, number=sura)
+    theseSuraFeatures = suraFeatures.get(sura, None)
+    if theseSuraFeatures:
+      cv.feature(curSura, **theseSuraFeatures)
     for (aya, ayaData) in suraData.items():
-      for (group, groupData) in ayaData.items():
-        for (word, (form, tag, featureStr)) in groupData.items():
-          wordFeatures.setdefault((sura, aya, group, word), {})['ascii'] = form
-          wordFeatures.setdefault((sura, aya, group, word), {})['unicode'] = tr.to_arabic(form)
+      curAya = cv.node('aya')
+      cv.feature(curAya, number=aya)
+      transFeatures = {
+          f'translation@{lang}': trans[(sura, aya)]
+          for (lang, trans) in translations.items()
+      }
+      cv.feature(curAya, **transFeatures)
+      for s in sectionEnd.get((sura, aya), []):
+        curSection = sectionIndex[s]
+        cv.terminate(curSection)
+        del sectionIndex[s]
+      for (sName, sI, sFeatures) in sectionStart.get((sura, aya), []):
+        curSection = cv.node(sName)
+        cv.feature(curSection, number=sI, **sFeatures)
+        sectionIndex[(sName, sI)] = curSection
+      nAya = len(ayaData)
+      for (ig, (group, groupData)) in enumerate(ayaData.items()):
+        curGroup = cv.node('group')
+        cv.feature(curGroup, number=group)
+        nGroup = len(groupData)
+        for (iw, (word, (form, tag, featureStr))) in enumerate(groupData.items()):
           (theseFeatures, theseUnknowns) = parseMorphItem(tag, featureStr)
-          for (k, v) in theseFeatures.items():
-            wordFeatures.setdefault((sura, aya, group, word), {})[k] = v
+          lemma = theseFeatures.get('lemma', None)
+          if lemma:
+            thisLemma = lemmaIndex.get(lemma, None)
+            if thisLemma:
+              cv.resume(thisLemma)
+            else:
+              thisLemma = cv.node('lex')
+              lemmaIndex[lemma] = thisLemma
+            cv.feature(thisLemma, lemma=lemma)
+          curWord = cv.slot()
+          if lemma:
+            cv.terminate(thisLemma)
+          cv.feature(
+              curWord,
+              ascii=form,
+              unicode=tr.to_arabic(form),
+              space=' ' if iw == nGroup - 1 and ig != nAya - 1 else '',
+              number=word,
+          )
+          cv.feature(curWord, **theseFeatures)
           unknowns |= theseUnknowns
+        cv.terminate(curGroup)
+      cv.terminate(curAya)
+    cv.terminate(curSura)
+  for curSection in sectionIndex.values():
+    cv.terminate(curSection)
 
   if unknownFeatures:
     feats = ' '.join(unknownFeatures)
@@ -568,178 +646,26 @@ def parseMorph():
   print(f'Done')
 
 
-# SET UP CONVERSION
-
-if os.path.exists(TF_PATH_V):
-  rmtree(TF_PATH_V)
-TF = Fabric(locations=[TF_PATH_V])
-token = Token(TF)
-
-
-# TOKEN GENERATOR
-
-def makeTfData():
-  print('Making TF data')
-
-  otype = {}
-  oslots = {}
-
-  (offsetS, offsetA, offsetG, offsetW) = (0, 0, 0, 0)
-  (curS, curA, curG) = (None, None, None)
-
-  for (thisS, thisA, thisG, thisW) in sorted(wordFeatures):
-    offsetW += 1
-    if (thisS, thisA, thisG) != (curS, curA, curG):
-      offsetG += 1
-    if (thisS, thisA) != (curS, curA):
-      offsetA += 1
-    if thisS != curS:
-      offsetS += 1
-    (curS, curA, curG) = (thisS, thisA, thisG)
-
-  print(f'''
-  {offsetS:>6} suras
-  {offsetA:>6} ayas
-  {offsetG:>6} word groups
-  {offsetW:>6} words
-''')
-
-  (curS, curA, curG) = (None, None, None)
-  (nodeS, nodeA, nodeG, nodeW, nodeL, nodeP) = (0, 0, 0, 0, 0, 0)
-  seenL = {}
-
-  for (thisS, thisA, thisG, thisW) in sorted(wordFeatures):
-    if nodeW:
-      space = (
-          ' '
-          if thisS == curS and thisA == curA and thisG != curG
-          else ''
-      )
-      nodeFeatures.setdefault('space', {})[nodeW] = space
-
-    nodeW += 1
-    otype[nodeW] = 'word'
-
-    nodeFeatures.setdefault('number', {})[nodeW] = thisW
-    for (k, v) in wordFeatures.get((thisS, thisA, thisG, thisW), {}).items():
-      nodeFeatures.setdefault(k, {})[nodeW] = v
-      if k == 'lemma' and v is not None:
-        if v not in seenL:
-          nodeL += 1
-          seenL[v] = nodeL
-          otype[offsetW + offsetG + offsetA + offsetS + nodeL] = 'lex'
-          nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + offsetS + nodeL] = v
-        lex = seenL[v]
-        oslots.setdefault(offsetW + offsetG + offsetA + offsetS + lex, set()).add(nodeW)
-
-    if (thisS, thisA, thisG) != (curS, curA, curG):
-      nodeG += 1
-      otype[offsetW + nodeG] = 'group'
-      nodeFeatures.setdefault('number', {})[offsetW + nodeG] = thisG
-    oslots.setdefault(offsetW + nodeG, set()).add(nodeW)
-
-    if (thisS, thisA) != (curS, curA):
-      posIndex[(thisS, thisA)] = nodeW
-      nodeA += 1
-      otype[offsetW + offsetG + nodeA] = 'aya'
-      nodeFeatures.setdefault('number', {})[offsetW + offsetG + nodeA] = thisA
-      for lang in translations:
-        nodeFeatures.setdefault(f'translation@{lang}', {})[offsetW + offsetG + nodeA] = (
-            translations[lang][(thisS, thisA)]
-        )
-    oslots.setdefault(offsetW + offsetG + nodeA, set()).add(nodeW)
-
-    if thisS != curS:
-      nodeS += 1
-      otype[offsetW + offsetG + offsetA + nodeS] = 'sura'
-      nodeFeatures.setdefault('number', {})[offsetW + offsetG + offsetA + nodeS] = thisS
-      for (k, v) in suraFeatures.get(thisS, {}).items():
-        nodeFeatures.setdefault(k, {})[offsetW + offsetG + offsetA + nodeS] = v
-    oslots.setdefault(offsetW + offsetG + offsetA + nodeS, set()).add(nodeW)
-
-    (curS, curA, curG) = (thisS, thisA, thisG)
-
-  offsetP = nodeW + nodeG + nodeA + nodeS + nodeL
-
-  for (sectionName, sectionData) in sectionFeatures.items():
-    for (sI, data) in sorted(sectionData.items()):
-      nodeP += 1
-      otype[offsetP + nodeP] = sectionName
-      nodeFeatures.setdefault('number', {})[offsetP + nodeP] = sI
-      (sura, aya) = data['start']
-      startW = posIndex[(sura, aya)]
-      endW = (
-          posIndex[sectionData[sI + 1]['start']] - 1
-          if sI + 1 in sectionData else
-          nodeW
-      )
-      oslots[offsetP + nodeP] = set(range(startW, endW + 1))
-      for k in data:
-        if k == 'start':
-          continue
-        nodeFeatures.setdefault(k, {})[offsetP + nodeP] = data[k]
-
-  nodeFeatures['otype'] = otype
-  edgeFeatures['oslots'] = oslots
-
-  for f in sorted(nodeFeatures) + sorted(edgeFeatures):
-    if f not in metaData:
-      print(f'\t!! {f}: no metadata')
-    else:
-      print(f'\t{f}: type {metaData[f]["valueType"]}')
-
-  for f in metaData:
-    if f in {'oslots', 'otype', 'otext', ''}:
-      continue
-    if f not in nodeFeatures and f not in edgeFeatures:
-      print(f'\t!! {f} does not occur in the data')
-
-  print(f'''
-  {nodeS:>6} sura nodes
-  {nodeA:>6} aya nodes
-  {nodeG:>6} word group nodes
-  {nodeW:>6} word nodes
-  {nodeL:>6} lexeme nodes
-  {nodeP:>6} section nodes
-''')
-  for (sectionName, sectionData) in sectionFeatures.items():
-    print(f'  {len(sectionData):>6} {sectionName} nodes')
-
-  fvs = (
-      sum(len(nodeFeatures[f]) for f in nodeFeatures)
-      +
-      sum(len(edgeFeatures[f]) for f in edgeFeatures)
-  )
-  print(f'Nodes: {nodeW + nodeG + nodeA + nodeS + nodeL + nodeP}')
-  print(f'Feature values: {fvs}')
-
-
-def makeTf():
-  tfPathV = f'{TF_PATH}/{VERSION}'
-  if os.path.exists(tfPathV):
-    rmtree(tfPathV)
-  TF = Fabric(locations=[tfPathV])
-  TF.save(nodeFeatures=nodeFeatures, edgeFeatures=edgeFeatures, metaData=metaData)
-
+# TF LOADING (to test the generated TF)
 
 def loadTf():
-  TF = Fabric(locations=[f'{TF_PATH}/{VERSION}'])
+  TF = Fabric(locations=[OUT_DIR])
   allFeatures = TF.explore(silent=True, show=True)
   loadableFeatures = allFeatures['nodes'] + allFeatures['edges']
-  api = TF.load(loadableFeatures)
+  api = TF.load(loadableFeatures, silent=False)
   if api:
     print(f'max node = {api.F.otype.maxNode}')
     print(api.F.root.freqList()[0:20])
 
 
-def main():
-  readTranslations()
-  readData()
-  readMorph()
-  parseMorph()
-  makeTfData()
-  makeTf()
+# MAIN
+
+generateTf = len(sys.argv) == 1 or sys.argv[1] != '-notf'
+
+print(f'QURAN-MORPH to TF converter for {REPO}')
+print(f'QURAN source version = {VERSION_SRC}')
+print(f'TF  target version = {VERSION_TF}')
+good = convert()
+
+if generateTf and good:
   loadTf()
-
-
-main()
