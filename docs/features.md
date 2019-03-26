@@ -45,7 +45,7 @@ name | node type | example values | description
 ## Word features: text
 
 name | example values | description
---- | --- | --- | ---
+--- | --- | ---
 **ascii** | `bi` `somi` `n~aAsi` | transliterated text of word
 **unicode** | `بِ` `سْمِ` `نَّاسِ` | arabic text of word (uthmani)
 **space** | ` ` *empty*  | a single space if the word is followed by a space, else empty
@@ -85,7 +85,7 @@ they have been treated in the same way: **a** and **ax**, **f** and **fx**,
 **l** and **lx**, **w** and **wx**, and **n**.
 
 name | example values | description
---- | --- | --- | ---
+--- | --- | ---
 **pos** | `noun` `particle` `conjunction` | part of speech, main classification
 **posx** | `proper` `negative` `coordinating` | part of speech, refined classification
 **a** | *None* `particle` | ??
@@ -101,7 +101,7 @@ name | example values | description
 ### features with nominal morphology
 
 name | example values | description
---- | --- | --- | ---
+--- | --- | ---
 **case** | `nominative` `accusative` `genitive` | grammatical case
 **gn** | `m` `f` | grammatical gender (masculine, feminine)
 **nu** | `s` `d` `p` | grammatical number (singular, dual, plural)
@@ -110,7 +110,7 @@ name | example values | description
 ### features for verb morphology
 
 name | example values | description
---- | --- | --- | ---
+--- | --- | ---
 **formation** | `II` `V` `X` | stem formation of a verb
 **voice** | `active` `passive` | voice of a verb
 **tense** | `perfect` `participle` | tense(like) form of a verb
@@ -120,6 +120,6 @@ name | example values | description
 ### features for other purposes
 
 name | example values | description
---- | --- | --- | ---
+--- | --- | ---
 **component** | `prefix` `stem` `suffix` | role of the word in its word group
 **interjection** | *None* `allahuma` | assumes the value 5 times only 
