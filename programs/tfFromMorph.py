@@ -20,7 +20,7 @@ MORPH_PATH = f'{SOURCES}/{MORPH_FILE}'
 DATA_FILE = 'quran-data.xml'
 DATA_PATH = f'{SOURCES}/{DATA_FILE}'
 TF_PATH = f'{BASE}/tf'
-VERSION_TF = '0.3'
+VERSION_TF = '0.4'
 OUT_DIR = f'{TF_PATH}/{VERSION_TF}'
 
 TRANSLATIONS = dict(
@@ -222,6 +222,8 @@ generic = dict(
 otext = {
     'sectionFeatures': 'number,number',
     'sectionTypes': 'sura,aya',
+    'structureFeatures': 'number,number,number',
+    'structureTypes': 'sura,ruku,aya',
     'fmt:text-orig-full': f'{{unicode}}{{space}}',
     'fmt:text-trans-full': f'{{ascii}}{{space}}',
     'fmt:lex-trans-full': f'{{lemma}}{{space}}',
