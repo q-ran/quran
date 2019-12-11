@@ -1,7 +1,7 @@
 ![quran](docs/images/quran.png)
 [![tf](docs/images/tf-small.png)](https://github.com/annotation/text-fabric)
 
-[![sha](sha.png) Software Heritage Archive](https://archive.softwareheritage.org/browse/origin/https://github.com/q-ran/quran/)
+[![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/q-ran/quran/)](https://archive.softwareheritage.org/browse/origin/https://github.com/q-ran/quran/)
 
 [![DOI](https://zenodo.org/badge/164148228.svg)](https://doi.org/10.5281/zenodo.2532177)
 
