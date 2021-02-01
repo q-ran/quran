@@ -36,7 +36,7 @@ This corpus contains the unaltered plain unicode text and transliterated texts
 as 1. and 2.
 It contains all morphological data of 1. but in a column oriented organization,
 as prescribed by the
-[tf format](https://annotation.github.io/text-fabric/Model/File-formats/).
+[tf format](https://annotation.github.io/text-fabric/tf/about/fileformats.html).
 
 We used 1. to obtain the full text in transliteration plus the morphological annotations.
 

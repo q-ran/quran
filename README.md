@@ -25,7 +25,7 @@ and
 [Tanzil](http://tanzil.net/docs/tanzil_project).
 
 The data in
-[tf format](https://annotation.github.io/text-fabric/Model/File-formats/)
+[tf format](https://annotation.github.io/text-fabric/tf/about/fileformats.html)
 is licensed as
 [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
