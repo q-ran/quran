@@ -2,8 +2,8 @@
 [![tf](docs/images/tf-small.png)](https://github.com/annotation/text-fabric)
 
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/q-ran/quran/)](https://archive.softwareheritage.org/browse/origin/https://github.com/q-ran/quran/)
-
 [![DOI](https://zenodo.org/badge/164148228.svg)](https://doi.org/10.5281/zenodo.2532177)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 # Quran
 
@@ -49,8 +49,7 @@ English and Dutch translations of the Quran are included in the feature data.
 
 # Authors
 
-[Cornelis van Lit](http://uu.academia.edu/LWCornelisEricvanLit)
-[![uu](docs/images/uu-small.png)](https://www.uu.nl/en/research/religious-studies/islam-and-arabic)
-
-[Dirk Roorda](http://knaw.academia.edu/DirkRoorda)
-[![dans](docs/images/dans-small.png)](https://dans.knaw.nl/en/about/research-and-innovation/research-and-innovation)
+*   [Cornelis van Lit](http://uu.academia.edu/LWCornelisEricvanLit)
+    [![uu](docs/images/uu-small.png)](https://www.uu.nl/en/research/religious-studies/islam-and-arabic)
+*   [Dirk Roorda](https://github.com/dirkroorda)
+    [![dans](docs/images/dans-small.png)](https://dans.knaw.nl/en/about/research-and-innovation/research-and-innovation)
