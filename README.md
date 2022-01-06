@@ -38,7 +38,7 @@ Read more about provenance and license in
 Getting started
 ===============
 Start with the
-[tutorial](https://nbviewer.jupyter.org/github/annotation/tutorials/blob/master/quran/start.ipynb).
+[tutorial](https://nbviewer.jupyter.org/github/q-ran/quran/blob/master/tutorial/start.ipynb).
 
 # Documentation
 
