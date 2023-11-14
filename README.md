@@ -9,7 +9,7 @@
 
 This repository contains text and annotations of the Quran.
 
-The corpus is modeled as a
+The corpus is modelled as a
 [text-fabric data resource](https://github.com/annotation/text-fabric)
 which is optimized for processing the text as data.
 This makes it easier to do all kinds of research on the text.
@@ -25,7 +25,7 @@ and
 [Tanzil](http://tanzil.net/docs/tanzil_project).
 
 The data in
-[tf format](https://annotation.github.io/text-fabric/tf/about/fileformats.html)
+[TF format](https://annotation.github.io/text-fabric/tf/about/fileformats.html)
 is licensed as
 [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 

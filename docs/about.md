@@ -36,12 +36,13 @@ This corpus contains the unaltered plain unicode text and transliterated texts
 as 1. and 2.
 It contains all morphological data of 1. but in a column oriented organization,
 as prescribed by the
-[tf format](https://annotation.github.io/text-fabric/tf/about/fileformats.html).
+[TF format](https://annotation.github.io/text-fabric/tf/about/fileformats.html).
 
-We used 1. to obtain the full text in transliteration plus the morphological annotations.
+We used 1. to obtain the full text in transliteration plus the morphological
+annotations.
 
-We used 2. to obtain metadata about the individual suras and other sectional units, such as juz
-and ruku.
+We used 2. to obtain metadata about the individual suras and other sectional
+units, such as `juz` and `ruku`.
 
 We used 3. to derive the transliteration mapping. It turned out there is a 1-1
 correspondence between the plain arabic text in 3. and the transliterated text in 1.
