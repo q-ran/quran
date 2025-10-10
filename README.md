@@ -3,7 +3,7 @@
 
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/q-ran/quran/)](https://archive.softwareheritage.org/browse/origin/https://github.com/q-ran/quran/)
 [![DOI](https://zenodo.org/badge/164148228.svg)](https://doi.org/10.5281/zenodo.2532177)
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Project Status: Inactive – The project has reached a stable, usable state but is no longer being actively developed; support/maintenance will be provided as time allows.](https://www.repostatus.org/badges/latest/inactive.svg)](https://www.repostatus.org/#inactive)
 
 # Quran
 
